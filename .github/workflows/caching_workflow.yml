@@ -1,0 +1,50 @@
+name: Dependency Caching
+
+on: [push]
+
+jobs:
+  build_with_caching:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      # ----------------------------------------------------------------------
+      # REQUIRED CACHING STEP
+      # Key: cache-8bbf611
+      # Path: Caches the common node_modules directory
+      # ----------------------------------------------------------------------
+      - name: prime-cache-8bbf611
+        id: cache-dependencies
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: cache-8bbf611
+          # The key uses the required static value to prime the cache
+          # We use a static key here as per the prompt's explicit requirement.
+
+      # Simulate a dependency installation command (npm install)
+      # This command will ONLY run on a cache MISS (the first run)
+      - name: Install dependencies (if cache missed)
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Simulating dependency installation..."
+          # Create the node_modules directory to be cached
+          mkdir node_modules
+          echo "Dependencies installed successfully." 
+
+      # ----------------------------------------------------------------------
+      # REQUIRED ECHO STEP
+      # Name: prime-cache-8bbf611
+      # Echoes the result of the cache action (hit or miss)
+      # ----------------------------------------------------------------------
+      - name: prime-cache-8bbf611
+        run: |
+          CACHE_RESULT="${{ steps.cache-dependencies.outputs.cache-hit }}"
+          if [ "$CACHE_RESULT" = "true" ]; then
+            echo "Cache Status: HIT"
+          else
+            echo "Cache Status: MISS"
+          fi
+          echo "Cache result variable: ${{ steps.cache-dependencies.outputs.cache-hit }}"
