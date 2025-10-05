@@ -10,41 +10,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         
-      # ----------------------------------------------------------------------
-      # REQUIRED CACHING STEP
-      # Key: cache-8bbf611
-      # Path: Caches the common node_modules directory
-      # ----------------------------------------------------------------------
-      - name: prime-cache-8bbf611
-        id: cache-dependencies
+      # 1. Setup Cache Step (ID is used for logic, Name is descriptive)
+      #    REQUIRED KEY: cache-8bbf611
+      - name: Setup Cache using Key cache-8bbf611 
+        id: cache-dependencies  # <-- Unique ID used to reference outputs
         uses: actions/cache@v4
         with:
           path: node_modules
           key: cache-8bbf611
-          # The key uses the required static value to prime the cache
-          # We use a static key here as per the prompt's explicit requirement.
-
-      # Simulate a dependency installation command (npm install)
-      # This command will ONLY run on a cache MISS (the first run)
+          
+      # 2. Install Dependencies (Runs only on cache MISS)
       - name: Install dependencies (if cache missed)
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
           echo "Simulating dependency installation..."
-          # Create the node_modules directory to be cached
           mkdir node_modules
           echo "Dependencies installed successfully." 
 
-      # ----------------------------------------------------------------------
-      # REQUIRED ECHO STEP
-      # Name: prime-cache-8bbf611
-      # Echoes the result of the cache action (hit or miss)
-      # ----------------------------------------------------------------------
+      # 3. REQUIRED ECHO STEP: Prints the cache hit/miss result
+      #    REQUIRED NAME: prime-cache-8bbf611
       - name: prime-cache-8bbf611
         run: |
           CACHE_RESULT="${{ steps.cache-dependencies.outputs.cache-hit }}"
           if [ "$CACHE_RESULT" = "true" ]; then
-            echo "Cache Status: HIT"
+            echo "✅ Cache Status: HIT (Dependencies skipped)"
           else
-            echo "Cache Status: MISS"
+            echo "❌ Cache Status: MISS (Dependencies installed and saved)"
           fi
-          echo "Cache result variable: ${{ steps.cache-dependencies.outputs.cache-hit }}"
+          echo "Cache hit output: ${{ steps.cache-dependencies.outputs.cache-hit }}"
