@@ -1,1 +1,24 @@
-name: 23f1000266@ds.study.iitm.ac.in
+name: Verify Email Step
+
+# Triggers the workflow on any push event to any branch
+on: [push] 
+
+jobs:
+  check_email_step:
+    # Use the standard runner
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Standard action to check out the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      # Step 2: REQUIRED STEP - The step name contains the provided email address
+      - name: Confirm 23f1000266@ds.study.iitm.ac.in Step Execution
+        run: |
+          echo "Running the mandatory check..."
+          echo "The unique email identifier is present in this step's name."
+      
+      # Step 3: Simple confirmation step
+      - name: Verify completion
+        run: echo "GitHub Action completed successfully."
